@@ -1,14 +1,17 @@
 cimport cython
 import numpy as np
-from numpy cimport ndarray, int_t
+cimport numpy as np
+# from numpy import ndarray
 
 DEF PEAK = 1
 DEF VALLEY = -1
 
+DTYPE = np.intc
+
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef int_t identify_initial_pivot(double [:] X,
+cpdef int identify_initial_pivot(double [:] X,
                                    double up_thresh,
                                    double down_thresh):
     cdef:
@@ -18,8 +21,8 @@ cpdef int_t identify_initial_pivot(double [:] X,
         double max_x = x_0
         double min_x = x_0
 
-        int_t max_t = 0
-        int_t min_t = 0
+        int max_t = 0
+        int min_t = 0
 
     up_thresh += 1
     down_thresh += 1
@@ -100,13 +103,13 @@ cpdef peak_valley_pivots_detailed(double [:] X,
         raise ValueError('The down_thresh must be negative.')
 
     cdef:
-        int_t initial_pivot = identify_initial_pivot(X,
+        int initial_pivot = identify_initial_pivot(X,
                                                      up_thresh,
                                                      down_thresh)
-        int_t t_n = len(X)
-        ndarray[int_t, ndim=1] pivots = np.zeros(t_n, dtype=np.int_)
-        int_t trend = -initial_pivot
-        int_t last_pivot_t = 0
+        int t_n = len(X)
+        np.ndarray[int, ndim=1] pivots = np.zeros(t_n, dtype=np.int32)
+        int trend = -initial_pivot
+        int last_pivot_t = 0
         double last_pivot_x = X[0]
         double x, r
 
@@ -171,7 +174,7 @@ def max_drawdown(X) -> float:
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-cpdef double max_drawdown_c(ndarray[double, ndim=1] X):
+cpdef double max_drawdown_c(np.ndarray[double, ndim=1] X):
     """
     Compute the maximum drawdown of some sequence.
 
@@ -198,7 +201,7 @@ cpdef double max_drawdown_c(ndarray[double, ndim=1] X):
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
-def pivots_to_modes(int_t [:] pivots):
+def pivots_to_modes(int [:] pivots):
     """
     Translate pivots into trend modes.
 
@@ -208,10 +211,9 @@ def pivots_to_modes(int_t [:] pivots):
     """
 
     cdef:
-        int_t x, t
-        ndarray[int_t, ndim=1] modes = np.zeros(len(pivots),
-                                                dtype=np.int_)
-        int_t mode = -pivots[0]
+        int x, t
+        np.ndarray[int, ndim=1] modes = np.zeros(len(pivots), dtype=np.int32)
+        int mode = -pivots[0]
 
     modes[0] = pivots[0]
 
